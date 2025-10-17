@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,7 +14,19 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "MyJN@Jarak",
-  description: "Sistem pengiraan jarak dan kos perjalanan antara sekolah-sekolah",
+  description: "Sistem pengiraan jarak dan kos perjalanan antara lokasi dengan ketepatan tinggi menggunakan teknologi pemetaan canggih",
+  icons: {
+    icon: '/logoJN.png',
+    shortcut: '/logoJN.png',
+    apple: '/logoJN.png',
+  },
+  manifest: '/manifest.json',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#3b82f6',
 };
 
 export default function RootLayout({
