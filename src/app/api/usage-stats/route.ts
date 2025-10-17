@@ -96,3 +96,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to track usage' }, { status: 500 });
   }
 }
+
+// PUT method for testing - simulate quota scenarios
+export async function PUT(request: Request) {
+  try {
+    const { action } = await request.json();
+    
+    if (action === 'simulate-quota-exceeded') {
+      // Simulate quota exceeded
+      usageStats.monthRequests = 40000;
+      console.log('🧪 Test: Simulated quota exceeded (40,000 requests)');
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Quota exceeded simulation activated',
+        monthRequests: usageStats.monthRequests 
+      });
+    } else if (action === 'simulate-quota-warning') {
+      // Simulate quota warning (38,000 requests)
+      usageStats.monthRequests = 38000;
+      console.log('🧪 Test: Simulated quota warning (38,000 requests)');
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Quota warning simulation activated',
+        monthRequests: usageStats.monthRequests 
+      });
+    } else if (action === 'reset-quota') {
+      // Reset quota to normal
+      usageStats.monthRequests = 0;
+      usageStats.totalRequests = 0;
+      usageStats.todayRequests = 0;
+      usageStats.weekRequests = 0;
+      usageStats.cacheHits = 0;
+      usageStats.cacheMisses = 0;
+      usageStats.requestHistory = [];
+      console.log('🧪 Test: Reset quota to 0');
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Quota reset to 0',
+        monthRequests: usageStats.monthRequests 
+      });
+    }
+    
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    
+  } catch (error) {
+    console.error('Error in PUT request:', error);
+    return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
+  }
+}

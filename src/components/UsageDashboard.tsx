@@ -170,6 +170,72 @@ export function UsageDashboard() {
                   🔄 Refresh Stats
                 </Button>
                 
+                {/* Testing Controls */}
+                <div className="grid grid-cols-1 gap-1">
+                  <div className="text-xs font-medium text-slate-700 mb-1">🧪 Test Quota Scenarios:</div>
+                  <div className="grid grid-cols-3 gap-1">
+                    <Button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/usage-stats', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'simulate-quota-exceeded' })
+                          });
+                          if (response.ok) fetchStats();
+                        } catch (error) {
+                          console.error('Test failed:', error);
+                        }
+                      }}
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs bg-red-50 hover:bg-red-100 border-red-200"
+                    >
+                      🚫 Habis
+                    </Button>
+                    
+                    <Button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/usage-stats', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'simulate-quota-warning' })
+                          });
+                          if (response.ok) fetchStats();
+                        } catch (error) {
+                          console.error('Test failed:', error);
+                        }
+                      }}
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs bg-amber-50 hover:bg-amber-100 border-amber-200"
+                    >
+                      ⚠️ Amaran
+                    </Button>
+                    
+                    <Button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/usage-stats', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'reset-quota' })
+                          });
+                          if (response.ok) fetchStats();
+                        } catch (error) {
+                          console.error('Test failed:', error);
+                        }
+                      }}
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs bg-green-50 hover:bg-green-100 border-green-200"
+                    >
+                      ✅ Reset
+                    </Button>
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-2">
                   <Button 
                     onClick={async () => {

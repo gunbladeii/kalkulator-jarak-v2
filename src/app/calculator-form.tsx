@@ -661,50 +661,75 @@ export function CalculatorForm() {
           )}
 
           {/* === QUOTA STATUS INDICATOR === */}
-          {(quotaRemaining <= 5000 || isQuotaExceeded) && (
+          {(quotaRemaining <= 5000 || isQuotaExceeded || monthlyRequests > 0) && (
             <div className={`p-4 rounded-lg border ${
               isQuotaExceeded 
                 ? 'bg-red-50 border-red-200' 
                 : quotaRemaining <= 1000 
                   ? 'bg-red-50 border-red-200'
-                  : 'bg-amber-50 border-amber-200'
+                  : quotaRemaining <= 5000
+                    ? 'bg-amber-50 border-amber-200'
+                    : 'bg-green-50 border-green-200'
             }`}>
-              <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${
-                  isQuotaExceeded 
-                    ? 'bg-red-500' 
-                    : quotaRemaining <= 1000 
-                      ? 'bg-red-500'
-                      : 'bg-amber-500'
-                } animate-pulse`}></div>
-                <div>
-                  <div className={`font-semibold text-sm ${
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${
                     isQuotaExceeded 
-                      ? 'text-red-800' 
+                      ? 'bg-red-500' 
                       : quotaRemaining <= 1000 
-                        ? 'text-red-800'
-                        : 'text-amber-800'
-                  }`}>
-                    {isQuotaExceeded 
-                      ? '🚫 Kuota API Habis' 
-                      : quotaRemaining <= 1000 
-                        ? '⚠️ Kuota API Hampir Habis'
-                        : '⚠️ Amaran Kuota API'
-                    }
-                  </div>
-                  <div className={`text-xs mt-1 ${
-                    isQuotaExceeded 
-                      ? 'text-red-700' 
-                      : quotaRemaining <= 1000 
-                        ? 'text-red-700'
-                        : 'text-amber-700'
-                  }`}>
-                    {isQuotaExceeded 
-                      ? `Kuota bulanan Google Distance Matrix API (40,000 permintaan) telah habis. Pengiraan jarak tidak tersedia sehingga bulan depan.`
-                      : `Baki ${quotaRemaining.toLocaleString()} daripada 40,000 permintaan bulanan. Digunakan: ${monthlyRequests.toLocaleString()}`
-                    }
+                        ? 'bg-red-500'
+                        : quotaRemaining <= 5000
+                          ? 'bg-amber-500'
+                          : 'bg-green-500'
+                  } ${isQuotaExceeded || quotaRemaining <= 5000 ? 'animate-pulse' : ''}`}></div>
+                  <div>
+                    <div className={`font-semibold text-sm ${
+                      isQuotaExceeded 
+                        ? 'text-red-800' 
+                        : quotaRemaining <= 1000 
+                          ? 'text-red-800'
+                          : quotaRemaining <= 5000
+                            ? 'text-amber-800'
+                            : 'text-green-800'
+                    }`}>
+                      {isQuotaExceeded 
+                        ? '🚫 Kuota API Habis' 
+                        : quotaRemaining <= 1000 
+                          ? '⚠️ Kuota API Hampir Habis'
+                          : quotaRemaining <= 5000
+                            ? '⚠️ Amaran Kuota API'
+                            : '✅ Status Kuota API'
+                      }
+                    </div>
+                    <div className={`text-xs mt-1 ${
+                      isQuotaExceeded 
+                        ? 'text-red-700' 
+                        : quotaRemaining <= 1000 
+                          ? 'text-red-700'
+                          : quotaRemaining <= 5000
+                            ? 'text-amber-700'
+                            : 'text-green-700'
+                    }`}>
+                      {isQuotaExceeded 
+                        ? `Kuota bulanan Google Distance Matrix API (40,000 permintaan) telah habis. Pengiraan jarak tidak tersedia sehingga bulan depan.`
+                        : `Baki ${quotaRemaining.toLocaleString()} daripada 40,000 permintaan bulanan. Digunakan: ${monthlyRequests.toLocaleString()}`
+                      }
+                    </div>
                   </div>
                 </div>
+                
+                {/* Refresh Quota Button */}
+                <Button
+                  onClick={checkQuotaStatus}
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 h-8 w-8 p-0 border-current hover:bg-current/10"
+                  title="Refresh status kuota"
+                >
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </Button>
               </div>
               
               {/* Progress bar for remaining quota */}
