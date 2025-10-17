@@ -46,6 +46,11 @@ export function CalculatorForm() {
   const [cost, setCost] = React.useState<number | null>(null)
   const [routeDetails, setRouteDetails] = React.useState<any>(null)
   const [optimizeRoute, setOptimizeRoute] = React.useState<boolean>(true) // Default enabled
+  
+  // === QUOTA TRACKING STATE ===
+  const [quotaRemaining, setQuotaRemaining] = React.useState<number>(40000)
+  const [isQuotaExceeded, setIsQuotaExceeded] = React.useState<boolean>(false)
+  const [monthlyRequests, setMonthlyRequests] = React.useState<number>(0)
   // ========================================================================
 
   // === SEARCH FUNCTIONS ===
@@ -73,6 +78,35 @@ export function CalculatorForm() {
       setIsSearching(false)
     }
   }
+
+  // === QUOTA CHECK FUNCTION ===
+  const checkQuotaStatus = async () => {
+    try {
+      const response = await fetch('/api/usage-stats')
+      const data = await response.json()
+      
+      if (response.ok && data.stats) {
+        const remaining = data.stats.free_tier_remaining || 0
+        const monthly = data.stats.month_requests || 0
+        
+        setQuotaRemaining(remaining)
+        setMonthlyRequests(monthly)
+        setIsQuotaExceeded(remaining <= 0)
+        
+        console.log(`📊 Quota check: ${remaining} requests remaining, ${monthly} used this month`)
+      }
+    } catch (error) {
+      console.error('Failed to check quota:', error)
+      // Default to safe values if API fails
+      setQuotaRemaining(0)
+      setIsQuotaExceeded(true)
+    }
+  }
+
+  // Check quota on component mount and after each calculation
+  React.useEffect(() => {
+    checkQuotaStatus()
+  }, [])
 
   // Debounced search untuk Sekolah Mula
   React.useEffect(() => {
@@ -137,6 +171,12 @@ export function CalculatorForm() {
 
   // === BAHAGIAN BARU: Fungsi untuk memanggil API pengiraan ===
   const handleKira = async () => {
+    // 0. Check quota first
+    if (isQuotaExceeded || quotaRemaining <= 0) {
+      setError('Kuota Google Distance Matrix API telah mencapai had bulanan (40,000 permintaan). Sila cuba lagi bulan depan.')
+      return
+    }
+
     // 1. Validasi input
     if (!sekolahMula || !sekolahDestinasi) {
       setError('Sila pilih sekolah mula dan sekolah destinasi.')
@@ -182,11 +222,14 @@ export function CalculatorForm() {
       setCost(calculatedCost)
       setRouteDetails(data) // Store full route details
 
+      // 6. Update quota status after successful calculation
+      await checkQuotaStatus()
+
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Sesuatu yang tidak kena telah berlaku.'
       setError(errorMessage)
     } finally {
-      // 6. Hentikan status loading, tidak kira berjaya atau gagal
+      // 7. Hentikan status loading, tidak kira berjaya atau gagal
       setIsLoading(false)
     }
   }
@@ -617,18 +660,95 @@ export function CalculatorForm() {
             </div>
           )}
 
+          {/* === QUOTA STATUS INDICATOR === */}
+          {(quotaRemaining <= 5000 || isQuotaExceeded) && (
+            <div className={`p-4 rounded-lg border ${
+              isQuotaExceeded 
+                ? 'bg-red-50 border-red-200' 
+                : quotaRemaining <= 1000 
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-amber-50 border-amber-200'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  isQuotaExceeded 
+                    ? 'bg-red-500' 
+                    : quotaRemaining <= 1000 
+                      ? 'bg-red-500'
+                      : 'bg-amber-500'
+                } animate-pulse`}></div>
+                <div>
+                  <div className={`font-semibold text-sm ${
+                    isQuotaExceeded 
+                      ? 'text-red-800' 
+                      : quotaRemaining <= 1000 
+                        ? 'text-red-800'
+                        : 'text-amber-800'
+                  }`}>
+                    {isQuotaExceeded 
+                      ? '🚫 Kuota API Habis' 
+                      : quotaRemaining <= 1000 
+                        ? '⚠️ Kuota API Hampir Habis'
+                        : '⚠️ Amaran Kuota API'
+                    }
+                  </div>
+                  <div className={`text-xs mt-1 ${
+                    isQuotaExceeded 
+                      ? 'text-red-700' 
+                      : quotaRemaining <= 1000 
+                        ? 'text-red-700'
+                        : 'text-amber-700'
+                  }`}>
+                    {isQuotaExceeded 
+                      ? `Kuota bulanan Google Distance Matrix API (40,000 permintaan) telah habis. Pengiraan jarak tidak tersedia sehingga bulan depan.`
+                      : `Baki ${quotaRemaining.toLocaleString()} daripada 40,000 permintaan bulanan. Digunakan: ${monthlyRequests.toLocaleString()}`
+                    }
+                  </div>
+                </div>
+              </div>
+              
+              {/* Progress bar for remaining quota */}
+              {!isQuotaExceeded && (
+                <div className="mt-3 space-y-1">
+                  <div className="flex justify-between text-xs text-slate-600">
+                    <span>Penggunaan Bulanan</span>
+                    <span>{monthlyRequests.toLocaleString()} / 40,000</span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        monthlyRequests > 35000 ? 'bg-red-500' :
+                        monthlyRequests > 30000 ? 'bg-amber-500' : 'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.min(100, (monthlyRequests / 40000) * 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* === BAHAGIAN DIUBAHSUAI: Butang Kira dengan status loading === */}
           <div className="pt-3 sm:pt-4">
             <Button 
               onClick={handleKira} 
-              disabled={isLoading}
-              className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+              disabled={isLoading || isQuotaExceeded}
+              className={`w-full h-12 sm:h-14 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 ${
+                isQuotaExceeded 
+                  ? 'bg-gray-400 cursor-not-allowed text-gray-600'
+                  : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white'
+              }`}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
                   <span className="hidden sm:inline">Mengira perjalanan...</span>
                   <span className="sm:hidden">Mengira...</span>
+                </>
+              ) : isQuotaExceeded ? (
+                <>
+                  🚫 <span className="hidden sm:inline">Kuota API Habis - Tidak Boleh Mengira</span>
+                  <span className="sm:hidden">Kuota Habis</span>
                 </>
               ) : (
                 <>
@@ -637,6 +757,11 @@ export function CalculatorForm() {
                   </svg>
                   <span className="hidden sm:inline">Kira Jarak & Kos Perjalanan</span>
                   <span className="sm:hidden">Kira Jarak & Kos</span>
+                  {waypoints.length > 0 && (
+                    <span className="ml-2 text-xs bg-white/20 px-2 py-1 rounded-full">
+                      +{waypoints.length}
+                    </span>
+                  )}
                 </>
               )}
             </Button>
