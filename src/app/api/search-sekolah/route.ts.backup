@@ -1,0 +1,136 @@
+import { supabase } from '@/lib/supabaseClient';
+import { NextResponse } from 'next/server';
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get('q') || '';
+    const limit = parseInt(searchParams.get('limit') || '50');
+
+    console.log('🔍 Search API called with:', { query, limit });
+
+    // If no query, return popular/common schools or empty
+    if (!query || query.length < 2) {
+      return NextResponse.json({ 
+        schools: [], 
+        message: 'Taip sekurang-kurangnya 2 huruf untuk carian',
+        success: true 
+      });
+    }
+
+    console.log(`🔍 Searching schools with query: "${query}"`);
+
+    // Direct fetch to Supabase REST API as fallback
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('❌ Missing Supabase credentials');
+      return NextResponse.json(
+        { 
+          error: 'Konfigurasi pangkalan data tidak lengkap.',
+          success: false 
+        }, 
+        { status: 500 }
+      );
+    }
+
+    try {
+      // Use direct HTTP API call instead of Supabase client
+      const searchUrl = `${supabaseUrl}/rest/v1/sekolah?select=id,nama_sekolah&nama_sekolah=ilike.*${encodeURIComponent(query)}*&order=nama_sekolah.asc&limit=${limit}`;
+      
+      console.log('🔗 Direct API call to:', searchUrl.substring(0, 100) + '...');
+      
+      // For development: Temporarily disable SSL verification for Node.js fetch
+      if (process.env.NODE_ENV === 'development') {
+        process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+      }
+      
+      const response = await fetch(searchUrl, {
+        method: 'GET',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      // Restore SSL verification after the call
+      if (process.env.NODE_ENV === 'development') {
+        process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "1";
+      }
+
+      if (!response.ok) {
+        console.error('❌ HTTP error:', response.status, response.statusText);
+        return NextResponse.json(
+          { 
+            error: 'Gagal mencari sekolah dalam pangkalan data.',
+            details: `HTTP ${response.status}: ${response.statusText}`,
+            success: false 
+          }, 
+          { status: 500 }
+        );
+      }
+
+      const data = await response.json();
+      console.log(`✅ Found ${data?.length || 0} matching schools via direct API`);
+
+      return NextResponse.json({ 
+        schools: data || [],
+        count: data?.length || 0,
+        query: query,
+        success: true,
+        method: 'direct-api'
+      });
+
+    } catch (directError) {
+      console.error('❌ Direct API call failed:', directError);
+      
+      // Final fallback - try Supabase client
+      try {
+        const { data, error } = await supabase
+          .from('sekolah')
+          .select('id, nama_sekolah')
+          .ilike('nama_sekolah', `%${query}%`)
+          .order('nama_sekolah', { ascending: true })
+          .limit(limit);
+
+        if (error) {
+          throw error;
+        }
+
+        console.log(`✅ Found ${data?.length || 0} matching schools via Supabase client fallback`);
+
+        return NextResponse.json({ 
+          schools: data || [],
+          count: data?.length || 0,
+          query: query,
+          success: true,
+          method: 'supabase-client-fallback'
+        });
+
+      } catch (fallbackError) {
+        console.error('❌ Both methods failed:', fallbackError);
+        return NextResponse.json(
+          { 
+            error: 'Gagal mencari sekolah dalam pangkalan data.',
+            details: fallbackError instanceof Error ? fallbackError.message : 'All methods failed',
+            success: false 
+          }, 
+          { status: 500 }
+        );
+      }
+    }
+
+  } catch (error) {
+    console.error('💥 Server error in search-sekolah:', error);
+    return NextResponse.json(
+      { 
+        error: 'Ralat dalaman server.',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        success: false
+      }, 
+      { status: 500 }
+    );
+  }
+}
