@@ -90,17 +90,90 @@ export function UsageDashboard() {
             </div>
           ) : stats ? (
             <>
-              {/* Cost Alert */}
-              {stats.stats.free_tier_remaining < 5000 && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <div className="text-amber-800 text-sm font-medium">
-                    ⚠️ Free Tier Alert
+              {/* Enhanced Quota Status Alert */}
+              <div className={`p-4 rounded-lg border ${
+                stats.stats.free_tier_remaining <= 0 
+                  ? 'bg-red-50 border-red-200' 
+                  : stats.stats.free_tier_remaining <= 1000 
+                    ? 'bg-red-50 border-red-200'
+                    : stats.stats.free_tier_remaining <= 5000
+                      ? 'bg-amber-50 border-amber-200'
+                      : 'bg-green-50 border-green-200'
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      stats.stats.free_tier_remaining <= 0 
+                        ? 'bg-red-500' 
+                        : stats.stats.free_tier_remaining <= 1000 
+                          ? 'bg-red-500'
+                          : stats.stats.free_tier_remaining <= 5000
+                            ? 'bg-amber-500'
+                            : 'bg-green-500'
+                    } ${stats.stats.free_tier_remaining <= 5000 ? 'animate-pulse' : ''}`}></div>
+                    <div className={`font-semibold text-sm ${
+                      stats.stats.free_tier_remaining <= 0 
+                        ? 'text-red-800' 
+                        : stats.stats.free_tier_remaining <= 1000 
+                          ? 'text-red-800'
+                          : stats.stats.free_tier_remaining <= 5000
+                            ? 'text-amber-800'
+                            : 'text-green-800'
+                    }`}>
+                      {stats.stats.free_tier_remaining <= 0 
+                        ? '🚫 Kuota API Habis' 
+                        : stats.stats.free_tier_remaining <= 1000 
+                          ? '⚠️ Kuota Kritikal'
+                          : stats.stats.free_tier_remaining <= 5000
+                            ? '⚠️ Kuota Rendah'
+                            : '✅ Status Kuota Baik'
+                      }
+                    </div>
                   </div>
-                  <div className="text-amber-700 text-xs mt-1">
-                    {stats.stats.free_tier_remaining} requests remaining this month
+                  <Button
+                    onClick={fetchStats}
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                    title="Refresh quota status"
+                  >
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </Button>
+                </div>
+                <div className={`text-xs ${
+                  stats.stats.free_tier_remaining <= 0 
+                    ? 'text-red-700' 
+                    : stats.stats.free_tier_remaining <= 1000 
+                      ? 'text-red-700'
+                      : stats.stats.free_tier_remaining <= 5000
+                        ? 'text-amber-700'
+                        : 'text-green-700'
+                }`}>
+                  {stats.stats.free_tier_remaining <= 0 
+                    ? 'Google Distance Matrix API quota telah habis. Sistem pengiraan jarak tidak tersedia.'
+                    : `Baki ${stats.stats.free_tier_remaining.toLocaleString()} daripada 40,000 permintaan bulanan.`
+                  }
+                </div>
+                
+                {/* Progress bar for quota usage */}
+                <div className="mt-2 space-y-1">
+                  <div className="flex justify-between text-xs opacity-75">
+                    <span>Penggunaan Bulan Ini</span>
+                    <span>{stats.stats.month_requests.toLocaleString()} / 40,000</span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-1.5">
+                    <div 
+                      className={`h-1.5 rounded-full transition-all duration-500 ${
+                        stats.stats.month_requests > 35000 ? 'bg-red-500' :
+                        stats.stats.month_requests > 30000 ? 'bg-amber-500' : 'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.min(100, (stats.stats.month_requests / 40000) * 100)}%` }}
+                    ></div>
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3">

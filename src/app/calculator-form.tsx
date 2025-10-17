@@ -108,7 +108,7 @@ export function CalculatorForm() {
     checkQuotaStatus()
   }, [])
 
-  // Debounced search untuk Sekolah Mula
+  // Debounced search untuk Mula
   React.useEffect(() => {
     const timeoutId = setTimeout(() => {
       searchSekolah(searchMula, setSearchResultsMula, setIsSearchingMula)
@@ -116,7 +116,7 @@ export function CalculatorForm() {
     return () => clearTimeout(timeoutId)
   }, [searchMula])
 
-  // Debounced search untuk Sekolah Destinasi  
+  // Debounced search untuk Destinasi  
   React.useEffect(() => {
     const timeoutId = setTimeout(() => {
       searchSekolah(searchDestinasi, setSearchResultsDestinasi, setIsSearchingDestinasi)
@@ -179,11 +179,11 @@ export function CalculatorForm() {
 
     // 1. Validasi input
     if (!sekolahMula || !sekolahDestinasi) {
-      setError('Sila pilih sekolah mula dan sekolah destinasi.')
+      setError('Sila pilih mula dan destinasi.')
       return
     }
     if (sekolahMula === sekolahDestinasi) {
-        setError('Sekolah mula dan destinasi tidak boleh sama.')
+        setError('Mula dan destinasi tidak boleh sama.')
         return
     }
 
@@ -241,7 +241,7 @@ export function CalculatorForm() {
     const confirmed = window.confirm(
       'Adakah anda pasti mahu mereset semua maklumat?\n\n' +
       'Ini akan membuang:\n' +
-      '• Sekolah mula dan destinasi\n' +
+      '• Mula dan destinasi\n' +
       '• Semua destinasi perantaraan\n' +
       '• Hasil pengiraan\n' +
       '• Kadar perbatuan akan reset ke RM 0.70'
@@ -295,7 +295,7 @@ export function CalculatorForm() {
           MyJN@Jarak
         </h1>
         <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto px-4">
-          Sistem pengiraan jarak dan kos perjalanan antara sekolah dengan ketepatan tinggi menggunakan teknologi pemetaan canggih
+          Sistem pengiraan jarak dan kos perjalanan antara lokasi dengan ketepatan tinggi menggunakan teknologi pemetaan canggih
         </p>
       </div>
 
@@ -305,7 +305,7 @@ export function CalculatorForm() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
             <div>
               <CardTitle className="text-xl sm:text-2xl text-slate-800">Pengiraan Perjalanan</CardTitle>
-              <CardDescription className="text-sm sm:text-base text-slate-600 mt-1">Pilih sekolah mula dan destinasi untuk memulakan pengiraan.</CardDescription>
+              <CardDescription className="text-sm sm:text-base text-slate-600 mt-1">Pilih mula dan destinasi untuk memulakan pengiraan.</CardDescription>
             </div>
             <Button
               onClick={handleReset}
@@ -322,12 +322,12 @@ export function CalculatorForm() {
         </CardHeader>
       <CardContent className="p-4 sm:p-6 lg:p-8">
         <div className="grid gap-6 sm:gap-8">
-          {/* PEMILIH SEKOLAH MULA */}
+          {/* PEMILIH MULA */}
           <div className="space-y-2 sm:space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-              <Label htmlFor="sekolah-mula" className="text-sm sm:text-base font-semibold text-slate-700 flex items-center gap-2">
+              <Label htmlFor="mula" className="text-sm sm:text-base font-semibold text-slate-700 flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                Sekolah Mula
+                Mula
               </Label>
               {sekolahMula && (
                 <Button 
@@ -351,7 +351,7 @@ export function CalculatorForm() {
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" aria-expanded={openMula} className="w-full max-w-full justify-between h-10 sm:h-12 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 transition-all duration-200 bg-white/50 text-sm sm:text-base overflow-hidden">
                   <span className="truncate text-left flex-1 min-w-0 mr-2">
-                    {sekolahMula || 'Pilih sekolah mula...'}
+                    {sekolahMula || 'Pilih mula...'}
                   </span>
                   <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 flex-none" />
                 </Button>
@@ -359,7 +359,7 @@ export function CalculatorForm() {
               <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[300px] sm:max-h-[--radix-popover-content-available-height] p-0">
                 <Command shouldFilter={false}>
                   <CommandInput 
-                    placeholder="Taip untuk cari sekolah..." 
+                    placeholder="Taip untuk cari..." 
                     value={searchMula}
                     onValueChange={setSearchMula}
                     className="text-sm sm:text-base"
@@ -369,14 +369,14 @@ export function CalculatorForm() {
                       ? 'Taip sekurang-kurangnya 2 huruf untuk carian'
                       : isSearchingMula 
                         ? 'Mencari...'
-                        : 'Tiada sekolah dijumpai'
+                        : 'Tiada dijumpai'
                     }
                   </CommandEmpty>
                   <CommandGroup>
                     {isSearchingMula && (
                       <CommandItem disabled>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Mencari sekolah...
+                        Mencari...
                       </CommandItem>
                     )}
                     {searchResultsMula.map((sekolah) => (
@@ -399,12 +399,12 @@ export function CalculatorForm() {
             </Popover>
           </div>
 
-          {/* PEMILIH SEKOLAH DESTINASI */}
+          {/* PEMILIH DESTINASI */}
           <div className="space-y-2 sm:space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-              <Label htmlFor="sekolah-destinasi" className="text-sm sm:text-base font-semibold text-slate-700 flex items-center gap-2">
+              <Label htmlFor="destinasi" className="text-sm sm:text-base font-semibold text-slate-700 flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                Sekolah Destinasi
+                Destinasi
               </Label>
               {sekolahDestinasi && (
                 <Button 
@@ -428,7 +428,7 @@ export function CalculatorForm() {
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" aria-expanded={openDestinasi} className="w-full max-w-full justify-between h-10 sm:h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-all duration-200 bg-white/50 text-sm sm:text-base overflow-hidden">
                   <span className="truncate text-left flex-1 min-w-0 mr-2">
-                    {sekolahDestinasi || 'Pilih sekolah destinasi...'}
+                    {sekolahDestinasi || 'Pilih destinasi...'}
                   </span>
                   <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50 flex-none" />
                 </Button>
@@ -436,7 +436,7 @@ export function CalculatorForm() {
               <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
                 <Command shouldFilter={false}>
                   <CommandInput 
-                    placeholder="Taip untuk cari sekolah..." 
+                    placeholder="Taip untuk cari..." 
                     value={searchDestinasi}
                     onValueChange={setSearchDestinasi}
                   />
@@ -445,14 +445,14 @@ export function CalculatorForm() {
                       ? 'Taip sekurang-kurangnya 2 huruf untuk carian'
                       : isSearchingDestinasi 
                         ? 'Mencari...'
-                        : 'Tiada sekolah dijumpai'
+                        : 'Tiada dijumpai'
                     }
                   </CommandEmpty>
                   <CommandGroup>
                     {isSearchingDestinasi && (
                       <CommandItem disabled>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Mencari sekolah...
+                        Mencari...
                       </CommandItem>
                     )}
                     {searchResultsDestinasi.map((sekolah) => (
@@ -520,7 +520,7 @@ export function CalculatorForm() {
                       <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
                         <Command shouldFilter={false}>
                           <CommandInput 
-                            placeholder="Taip untuk cari sekolah..." 
+                            placeholder="Taip untuk cari..." 
                             value={searchWaypoints[index] || ''}
                             onValueChange={(value) => {
                               const newSearch = [...searchWaypoints];
@@ -533,14 +533,14 @@ export function CalculatorForm() {
                               ? 'Taip sekurang-kurangnya 2 huruf untuk carian'
                               : isSearchingWaypoints[index] 
                                 ? 'Mencari...'
-                                : 'Tiada sekolah dijumpai'
+                                : 'Tiada dijumpai'
                             }
                           </CommandEmpty>
                           <CommandGroup>
                             {isSearchingWaypoints[index] && (
                               <CommandItem disabled>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Mencari sekolah...
+                                Mencari...
                               </CommandItem>
                             )}
                             {(searchResultsWaypoints[index] || []).map((sekolah) => (
@@ -655,99 +655,6 @@ export function CalculatorForm() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   <span><strong>Aktif!</strong> Sistem akan mengira laluan paling efisien antara semua destinasi</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* === QUOTA STATUS INDICATOR === */}
-          {(quotaRemaining <= 5000 || isQuotaExceeded || monthlyRequests > 0) && (
-            <div className={`p-4 rounded-lg border ${
-              isQuotaExceeded 
-                ? 'bg-red-50 border-red-200' 
-                : quotaRemaining <= 1000 
-                  ? 'bg-red-50 border-red-200'
-                  : quotaRemaining <= 5000
-                    ? 'bg-amber-50 border-amber-200'
-                    : 'bg-green-50 border-green-200'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    isQuotaExceeded 
-                      ? 'bg-red-500' 
-                      : quotaRemaining <= 1000 
-                        ? 'bg-red-500'
-                        : quotaRemaining <= 5000
-                          ? 'bg-amber-500'
-                          : 'bg-green-500'
-                  } ${isQuotaExceeded || quotaRemaining <= 5000 ? 'animate-pulse' : ''}`}></div>
-                  <div>
-                    <div className={`font-semibold text-sm ${
-                      isQuotaExceeded 
-                        ? 'text-red-800' 
-                        : quotaRemaining <= 1000 
-                          ? 'text-red-800'
-                          : quotaRemaining <= 5000
-                            ? 'text-amber-800'
-                            : 'text-green-800'
-                    }`}>
-                      {isQuotaExceeded 
-                        ? '🚫 Kuota API Habis' 
-                        : quotaRemaining <= 1000 
-                          ? '⚠️ Kuota API Hampir Habis'
-                          : quotaRemaining <= 5000
-                            ? '⚠️ Amaran Kuota API'
-                            : '✅ Status Kuota API'
-                      }
-                    </div>
-                    <div className={`text-xs mt-1 ${
-                      isQuotaExceeded 
-                        ? 'text-red-700' 
-                        : quotaRemaining <= 1000 
-                          ? 'text-red-700'
-                          : quotaRemaining <= 5000
-                            ? 'text-amber-700'
-                            : 'text-green-700'
-                    }`}>
-                      {isQuotaExceeded 
-                        ? `Kuota bulanan Google Distance Matrix API (40,000 permintaan) telah habis. Pengiraan jarak tidak tersedia sehingga bulan depan.`
-                        : `Baki ${quotaRemaining.toLocaleString()} daripada 40,000 permintaan bulanan. Digunakan: ${monthlyRequests.toLocaleString()}`
-                      }
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Refresh Quota Button */}
-                <Button
-                  onClick={checkQuotaStatus}
-                  variant="outline"
-                  size="sm"
-                  className="shrink-0 h-8 w-8 p-0 border-current hover:bg-current/10"
-                  title="Refresh status kuota"
-                >
-                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </Button>
-              </div>
-              
-              {/* Progress bar for remaining quota */}
-              {!isQuotaExceeded && (
-                <div className="mt-3 space-y-1">
-                  <div className="flex justify-between text-xs text-slate-600">
-                    <span>Penggunaan Bulanan</span>
-                    <span>{monthlyRequests.toLocaleString()} / 40,000</span>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        monthlyRequests > 35000 ? 'bg-red-500' :
-                        monthlyRequests > 30000 ? 'bg-amber-500' : 'bg-green-500'
-                      }`}
-                      style={{ width: `${Math.min(100, (monthlyRequests / 40000) * 100)}%` }}
-                    ></div>
-                  </div>
                 </div>
               )}
             </div>
