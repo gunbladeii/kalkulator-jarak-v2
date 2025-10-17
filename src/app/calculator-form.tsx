@@ -239,36 +239,36 @@ export function CalculatorForm() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8">
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
       {/* Header Section */}
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-4">
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="text-center space-y-3 sm:space-y-4">
+        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-3 sm:mb-4">
+          <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
           MyJN@Jarak
         </h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+        <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto px-4">
           Sistem pengiraan jarak dan kos perjalanan antara sekolah dengan ketepatan tinggi menggunakan teknologi pemetaan canggih
         </p>
       </div>
 
       {/* Main Calculator Card */}
       <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-slate-50 rounded-t-lg">
-          <div className="flex items-center justify-between">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-slate-50 rounded-t-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
             <div>
-              <CardTitle className="text-2xl text-slate-800">Pengiraan Perjalanan</CardTitle>
-              <CardDescription className="text-slate-600">Pilih sekolah mula dan destinasi untuk memulakan pengiraan.</CardDescription>
+              <CardTitle className="text-xl sm:text-2xl text-slate-800">Pengiraan Perjalanan</CardTitle>
+              <CardDescription className="text-sm sm:text-base text-slate-600 mt-1">Pilih sekolah mula dan destinasi untuk memulakan pengiraan.</CardDescription>
             </div>
             <Button
               onClick={handleReset}
               variant="outline"
               size="sm"
-              className="flex items-center gap-2 border-red-200 hover:border-red-300 hover:bg-red-50 text-red-600 hover:text-red-700 transition-all duration-200"
+              className="flex items-center gap-2 border-red-200 hover:border-red-300 hover:bg-red-50 text-red-600 hover:text-red-700 transition-all duration-200 self-start sm:self-auto"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -277,12 +277,12 @@ export function CalculatorForm() {
             </Button>
           </div>
         </CardHeader>
-      <CardContent className="p-8">
-        <div className="grid gap-8">
+      <CardContent className="p-4 sm:p-6 lg:p-8">
+        <div className="grid gap-6 sm:gap-8">
           {/* PEMILIH SEKOLAH MULA */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="sekolah-mula" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+              <Label htmlFor="sekolah-mula" className="text-sm sm:text-base font-semibold text-slate-700 flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                 Sekolah Mula
               </Label>
@@ -306,17 +306,18 @@ export function CalculatorForm() {
             </div>
             <Popover open={openMula} onOpenChange={setOpenMula}>
               <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={openMula} className="w-full justify-between h-12 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 transition-all duration-200 bg-white/50">
+                <Button variant="outline" role="combobox" aria-expanded={openMula} className="w-full justify-between h-10 sm:h-12 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 transition-all duration-200 bg-white/50 text-sm sm:text-base">
                   {sekolahMula || 'Pilih sekolah mula...'}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+              <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[300px] sm:max-h-[--radix-popover-content-available-height] p-0">
                 <Command shouldFilter={false}>
                   <CommandInput 
                     placeholder="Taip untuk cari sekolah..." 
                     value={searchMula}
                     onValueChange={setSearchMula}
+                    className="text-sm sm:text-base"
                   />
                   <CommandEmpty>
                     {searchMula.length < 2 
@@ -611,23 +612,25 @@ export function CalculatorForm() {
           )}
 
           {/* === BAHAGIAN DIUBAHSUAI: Butang Kira dengan status loading === */}
-          <div className="pt-4">
+          <div className="pt-3 sm:pt-4">
             <Button 
               onClick={handleKira} 
               disabled={isLoading}
-              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+              className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                  Mengira perjalanan...
+                  <Loader2 className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                  <span className="hidden sm:inline">Mengira perjalanan...</span>
+                  <span className="sm:hidden">Mengira...</span>
                 </>
               ) : (
                 <>
-                  <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
-                  Kira Jarak & Kos Perjalanan
+                  <span className="hidden sm:inline">Kira Jarak & Kos Perjalanan</span>
+                  <span className="sm:hidden">Kira Jarak & Kos</span>
                 </>
               )}
             </Button>
@@ -637,7 +640,7 @@ export function CalculatorForm() {
       </CardContent>
       
       {/* === BAHAGIAN BARU: Ruang untuk memaparkan hasil dan ralat === */}
-      <CardFooter className="flex-col items-start gap-6 p-8 bg-gradient-to-br from-slate-50 to-blue-50/50">
+      <CardFooter className="flex-col items-start gap-4 sm:gap-6 p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-blue-50/50">
         {error && (
           <div className="w-full p-6 rounded-xl bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 shadow-sm">
             <div className="flex items-center gap-3">
@@ -819,7 +822,7 @@ export function CalculatorForm() {
                 Export & Cetak Laporan
               </h4>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
                 {/* Print Report */}
                 <Button 
                   onClick={() => openPrintReport({
@@ -831,7 +834,7 @@ export function CalculatorForm() {
                     sekolahDestinasi,
                     waypoints
                   })}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 text-sm sm:px-4 sm:text-base"
                 >
                   <Printer className="w-4 h-4" />
                   Cetak Laporan
@@ -849,7 +852,7 @@ export function CalculatorForm() {
                     waypoints
                   })}
                   variant="outline"
-                  className="flex items-center gap-2 border-green-500 text-green-600 hover:bg-green-50"
+                  className="flex items-center gap-2 border-green-500 text-green-600 hover:bg-green-50 px-3 py-2 text-sm sm:px-4 sm:text-base"
                 >
                   <Download className="w-4 h-4" />
                   Export CSV
@@ -867,7 +870,7 @@ export function CalculatorForm() {
                     waypoints
                   })}
                   variant="outline"
-                  className="flex items-center gap-2 border-purple-500 text-purple-600 hover:bg-purple-50"
+                  className="flex items-center gap-2 border-purple-500 text-purple-600 hover:bg-purple-50 px-3 py-2 text-sm sm:px-4 sm:text-base"
                 >
                   <FileText className="w-4 h-4" />
                   Export JSON
