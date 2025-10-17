@@ -307,8 +307,10 @@ export function CalculatorForm() {
             <Popover open={openMula} onOpenChange={setOpenMula}>
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" aria-expanded={openMula} className="w-full justify-between h-10 sm:h-12 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 transition-all duration-200 bg-white/50 text-sm sm:text-base">
-                  {sekolahMula || 'Pilih sekolah mula...'}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <span className="truncate text-left flex-1 mr-2">
+                    {sekolahMula || 'Pilih sekolah mula...'}
+                  </span>
+                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[300px] sm:max-h-[--radix-popover-content-available-height] p-0">
@@ -355,9 +357,9 @@ export function CalculatorForm() {
           </div>
 
           {/* PEMILIH SEKOLAH DESTINASI */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="sekolah-destinasi" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+              <Label htmlFor="sekolah-destinasi" className="text-sm sm:text-base font-semibold text-slate-700 flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 Sekolah Destinasi
               </Label>
@@ -381,9 +383,11 @@ export function CalculatorForm() {
             </div>
               <Popover open={openDestinasi} onOpenChange={setOpenDestinasi}>
               <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={openDestinasi} className="w-full justify-between h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-all duration-200 bg-white/50">
-                  {sekolahDestinasi || 'Pilih sekolah destinasi...'}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                <Button variant="outline" role="combobox" aria-expanded={openDestinasi} className="w-full justify-between h-10 sm:h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-all duration-200 bg-white/50 text-sm sm:text-base">
+                  <span className="truncate text-left flex-1 mr-2">
+                    {sekolahDestinasi || 'Pilih sekolah destinasi...'}
+                  </span>
+                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
@@ -462,10 +466,12 @@ export function CalculatorForm() {
                         <Button 
                           variant="outline" 
                           role="combobox" 
-                          className="w-full justify-between h-11 border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 transition-all duration-200 bg-white/50"
+                          className="w-full justify-between h-10 sm:h-11 border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 transition-all duration-200 bg-white/50 text-sm sm:text-base"
                         >
-                          {waypoint || `Pilih destinasi ${index + 1}...`}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          <span className="truncate text-left flex-1 mr-2">
+                            {waypoint || `Pilih destinasi ${index + 1}...`}
+                          </span>
+                          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
