@@ -4,6 +4,7 @@ import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { exportUsageToJSON, exportUsageToCSV, logUsageStats } from '@/lib/usageAnalytics'
+import { supabase } from '@/lib/supabaseClient'
 
 interface UsageStats {
   stats: {
@@ -29,6 +30,7 @@ export function UsageDashboard() {
   const [stats, setStats] = React.useState<UsageStats | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
   const [isVisible, setIsVisible] = React.useState(false)
+  const [isRealTimeConnected, setIsRealTimeConnected] = React.useState(false)
 
   const fetchStats = async () => {
     setIsLoading(true)
@@ -43,12 +45,45 @@ export function UsageDashboard() {
     }
   }
 
+  // Real-time subscription - macam Firebase onSnapshot!
   React.useEffect(() => {
-    if (isVisible) {
-      fetchStats()
-      // Auto refresh every 30 seconds when visible
-      const interval = setInterval(fetchStats, 30000)
-      return () => clearInterval(interval)
+    if (!isVisible) return
+
+    console.log('🚀 Setting up real-time connection untuk usage stats...')
+    
+    // Setup real-time listener macam onSnapshot Firebase
+    const channel = supabase
+      .channel('usage-stats-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen semua changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'usage_logs' // Assuming kau ada table ni
+        },
+        (payload) => {
+          console.log('📊 Real-time update detected:', payload)
+          
+          // Auto refresh stats bila ada perubahan - macam onSnapshot!
+          fetchStats()
+          
+          // Visual feedback untuk user
+          setIsRealTimeConnected(true)
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status)
+        setIsRealTimeConnected(status === 'SUBSCRIBED')
+      })
+
+    // Initial fetch
+    fetchStats()
+
+    // Cleanup bila component unmount (penting macam Firebase!)
+    return () => {
+      console.log('🔌 Disconnecting real-time subscription...')
+      supabase.removeChannel(channel)
+      setIsRealTimeConnected(false)
     }
   }, [isVisible])
 
@@ -71,7 +106,18 @@ export function UsageDashboard() {
       <Card className="shadow-2xl border-2 border-slate-200 bg-white">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">📊 Statistik Penggunaan API</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-lg">📊 Statistik Penggunaan API</CardTitle>
+              {/* Real-time connection indicator - macam Firebase onSnapshot status */}
+              <div className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${
+                  isRealTimeConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                }`}></div>
+                <span className="text-xs text-gray-500">
+                  {isRealTimeConnected ? 'Real-time' : 'Offline'}
+                </span>
+              </div>
+            </div>
             <Button 
               variant="ghost" 
               size="sm" 
