@@ -735,7 +735,7 @@ export function CalculatorForm() {
                     }`}
                   >
                     🚗 Kereta
-                    <div className="text-xs mt-1 opacity-75">85¢/km (500km pertama)</div>
+                    <div className="text-xs mt-1 opacity-75">85 sen/km (500km pertama)</div>
                   </button>
                   <button
                     type="button"
@@ -747,7 +747,7 @@ export function CalculatorForm() {
                     }`}
                   >
                     🏍️ Motorsikal
-                    <div className="text-xs mt-1 opacity-75">55¢/km (500km pertama)</div>
+                    <div className="text-xs mt-1 opacity-75">55 sen/km (500km pertama)</div>
                   </button>
                 </div>
                 
@@ -758,13 +758,13 @@ export function CalculatorForm() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <div className="font-medium">500km pertama:</div>
-                        <div>Kereta: RM 0.85/km</div>
-                        <div>Motorsikal: RM 0.55/km</div>
+                        <div>Kereta: 85 sen/km</div>
+                        <div>Motorsikal: 55 sen/km</div>
                       </div>
                       <div>
                         <div className="font-medium">501km & seterusnya:</div>
-                        <div>Kereta: RM 0.75/km</div>
-                        <div>Motorsikal: RM 0.45/km</div>
+                        <div>Kereta: 75 sen/km</div>
+                        <div>Motorsikal: 45 sen/km</div>
                       </div>
                     </div>
                   </div>
