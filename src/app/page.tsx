@@ -20,7 +20,9 @@ export default function HomePage() {
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
       
       <div className="relative z-10 container mx-auto flex min-h-screen flex-col items-center justify-center p-8">
-        <CalculatorForm />
+        <div suppressHydrationWarning>
+          <CalculatorForm />
+        </div>
       </div>
       
       {/* Usage Dashboard - floating widget */}

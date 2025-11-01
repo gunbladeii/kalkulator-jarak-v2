@@ -6,6 +6,7 @@ import { Check, ChevronsUpDown, Loader2, Printer, Download, FileText } from 'luc
 import { cn } from '@/lib/utils'
 import { openPrintReport } from '@/lib/printReport'
 import { exportAsCSV, exportAsJSON } from '@/lib/exportReport'
+import { calculateGovernmentRate, type GovRateStructure } from '@/lib/governmentRates'
 import { Button } from '@/components/ui/button'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -19,6 +20,13 @@ export type Sekolah = {
 }
 
 export function CalculatorForm() {
+  // Hydration fix
+  const [isClient, setIsClient] = React.useState(false)
+  
+  React.useEffect(() => {
+    setIsClient(true)
+  }, [])
+  
   const [openMula, setOpenMula] = React.useState(false)
   const [openDestinasi, setOpenDestinasi] = React.useState(false)
   const [openWaypoints, setOpenWaypoints] = React.useState<boolean[]>([])
@@ -27,6 +35,11 @@ export function CalculatorForm() {
   const [sekolahDestinasi, setSekolahDestinasi] = React.useState<string>('')
   const [waypoints, setWaypoints] = React.useState<string[]>([])
   const [kadar, setKadar] = React.useState<string>('0.70')
+  
+  // Government Rate States
+  const [useGovernmentRate, setUseGovernmentRate] = React.useState<boolean>(false)
+  const [vehicleType, setVehicleType] = React.useState<'kereta' | 'motorsikal'>('kereta')
+  const [governmentRateCalc, setGovernmentRateCalc] = React.useState<GovRateStructure | null>(null)
 
   // === SEARCH STATES ===
   const [searchMula, setSearchMula] = React.useState<string>('')
@@ -217,7 +230,22 @@ export function CalculatorForm() {
 
       // 5. Jika berjaya, kira kos dan kemas kini state
       const calculatedDistance = data.distance
-      const calculatedCost = calculatedDistance * parseFloat(kadar)
+      
+      // Calculate cost based on selected rate type
+      let calculatedCost: number
+      let govCalc: GovRateStructure | null = null
+      
+      if (useGovernmentRate) {
+        // Use government rate calculation
+        govCalc = calculateGovernmentRate(calculatedDistance, vehicleType)
+        calculatedCost = govCalc.totalCost
+        setGovernmentRateCalc(govCalc)
+      } else {
+        // Use manual rate
+        calculatedCost = calculatedDistance * parseFloat(kadar)
+        setGovernmentRateCalc(null)
+      }
+      
       setDistance(calculatedDistance)
       setCost(calculatedCost)
       setRouteDetails(data) // Store full route details
@@ -244,7 +272,8 @@ export function CalculatorForm() {
       '• Mula dan destinasi\n' +
       '• Semua destinasi perantaraan\n' +
       '• Hasil pengiraan\n' +
-      '• Kadar perbatuan akan reset ke RM 0.70'
+      '• Kadar perbatuan akan reset ke RM 0.70\n' +
+      '• Tetapan kadar kerajaan akan reset'
     )
     
     if (!confirmed) return
@@ -254,6 +283,11 @@ export function CalculatorForm() {
     setSekolahDestinasi('')
     setWaypoints([])
     setKadar('0.70')
+    
+    // Reset government rate settings
+    setUseGovernmentRate(false)
+    setVehicleType('kereta')
+    setGovernmentRateCalc(null)
     
     // Clear all search states
     setSearchMula('')
@@ -281,6 +315,31 @@ export function CalculatorForm() {
     console.log('🔄 Form reset completed')
   }
 
+  // Show loading state during hydration to prevent mismatch
+  if (!isClient) {
+    return (
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+        <div className="text-center space-y-3 sm:space-y-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-3 sm:mb-4">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            MyJN@Jarak
+          </h1>
+          <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto px-4">
+            Memuat aplikasi...
+          </p>
+        </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
       {/* Header Section */}
@@ -300,7 +359,7 @@ export function CalculatorForm() {
       </div>
 
       {/* Main Calculator Card */}
-      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl" suppressHydrationWarning>
         <CardHeader className="bg-gradient-to-r from-blue-50 to-slate-50 rounded-t-lg p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
             <div>
@@ -605,22 +664,113 @@ export function CalculatorForm() {
           </div>
 
           {/* INPUT KADAR PERBATUAN */}
-          <div className="space-y-3">
-            <Label htmlFor="kadar" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+          <div className="space-y-4">
+            <Label className="text-base font-semibold text-slate-700 flex items-center gap-2">
               <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-              Kadar Perbatuan (RM / km)
+              Kadar Perbatuan
             </Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 font-medium">RM</span>
-              <Input 
-                id="kadar" 
-                type="number" 
-                placeholder="0.70" 
-                value={kadar} 
-                onChange={(e) => setKadar(e.target.value)}
-                className="pl-12 h-12 border-2 border-slate-200 focus:border-amber-500 transition-all duration-200 bg-white/50"
-              />
+            
+            {/* Rate Type Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setUseGovernmentRate(false)}
+                className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
+                  !useGovernmentRate 
+                    ? 'border-amber-500 bg-amber-50 text-amber-900' 
+                    : 'border-slate-200 bg-white hover:border-amber-300'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-3 h-3 rounded-full ${!useGovernmentRate ? 'bg-amber-500' : 'bg-slate-300'}`}></div>
+                  <span className="font-medium">Kadar Manual</span>
+                </div>
+                <p className="text-sm text-slate-600">Set kadar sendiri (RM/km)</p>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setUseGovernmentRate(true)}
+                className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
+                  useGovernmentRate 
+                    ? 'border-blue-500 bg-blue-50 text-blue-900' 
+                    : 'border-slate-200 bg-white hover:border-blue-300'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-3 h-3 rounded-full ${useGovernmentRate ? 'bg-blue-500' : 'bg-slate-300'}`}></div>
+                  <span className="font-medium">🏛️ Kadar Kerajaan</span>
+                </div>
+                <p className="text-sm text-slate-600">Mengikut kadar rasmi Kerajaan</p>
+              </button>
             </div>
+
+            {/* Manual Rate Input */}
+            {!useGovernmentRate && (
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 font-medium">RM</span>
+                <Input 
+                  id="kadar" 
+                  type="number" 
+                  placeholder="0.70" 
+                  value={kadar} 
+                  onChange={(e) => setKadar(e.target.value)}
+                  className="pl-12 h-12 border-2 border-slate-200 focus:border-amber-500 transition-all duration-200 bg-white/50"
+                />
+              </div>
+            )}
+
+            {/* Government Rate Vehicle Selection */}
+            {useGovernmentRate && (
+              <div className="space-y-3 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <Label className="text-sm font-medium text-blue-800">Jenis Kenderaan:</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setVehicleType('kereta')}
+                    className={`p-3 rounded-lg border transition-all duration-200 text-sm ${
+                      vehicleType === 'kereta'
+                        ? 'border-blue-500 bg-blue-100 text-blue-900'
+                        : 'border-blue-200 bg-white text-blue-700 hover:border-blue-400'
+                    }`}
+                  >
+                    🚗 Kereta
+                    <div className="text-xs mt-1 opacity-75">85¢/km (500km pertama)</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVehicleType('motorsikal')}
+                    className={`p-3 rounded-lg border transition-all duration-200 text-sm ${
+                      vehicleType === 'motorsikal'
+                        ? 'border-blue-500 bg-blue-100 text-blue-900'
+                        : 'border-blue-200 bg-white text-blue-700 hover:border-blue-400'
+                    }`}
+                  >
+                    🏍️ Motorsikal
+                    <div className="text-xs mt-1 opacity-75">55¢/km (500km pertama)</div>
+                  </button>
+                </div>
+                
+                {/* Government Rate Info */}
+                <div className="bg-blue-100 p-3 rounded-lg border border-blue-300">
+                  <h4 className="font-medium text-blue-900 mb-2">📋 Kadar Kerajaan:</h4>
+                  <div className="text-sm text-blue-800 space-y-1">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="font-medium">500km pertama:</div>
+                        <div>Kereta: RM 0.85/km</div>
+                        <div>Motorsikal: RM 0.55/km</div>
+                      </div>
+                      <div>
+                        <div className="font-medium">501km & seterusnya:</div>
+                        <div>Kereta: RM 0.75/km</div>
+                        <div>Motorsikal: RM 0.45/km</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ROUTE OPTIMIZATION TOGGLE */}
@@ -761,12 +911,71 @@ export function CalculatorForm() {
               </div>
             </div>
 
+            {/* Government Rate Breakdown */}
+            {governmentRateCalc && (
+              <div className="bg-blue-50 p-6 rounded-xl border border-blue-200 shadow-sm">
+                <h4 className="font-bold text-blue-900 mb-4 flex items-center gap-2">
+                  🏛️ Pecahan Kadar Kerajaan ({governmentRateCalc.type === 'kereta' ? 'Kereta' : 'Motorsikal'})
+                </h4>
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* First 500km */}
+                  {governmentRateCalc.breakdown.first500km.distance > 0 && (
+                    <div className="bg-white p-4 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-blue-800">500 km pertama:</span>
+                        <span className="text-sm text-blue-600">@ RM {governmentRateCalc.breakdown.first500km.rate}</span>
+                      </div>
+                      <div className="text-2xl font-bold text-blue-900">
+                        {governmentRateCalc.breakdown.first500km.distance.toFixed(1)} km
+                      </div>
+                      <div className="text-blue-700 font-medium">
+                        = RM {governmentRateCalc.breakdown.first500km.cost.toFixed(2)}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Beyond 500km */}
+                  {governmentRateCalc.breakdown.beyond500km.distance > 0 && (
+                    <div className="bg-white p-4 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-blue-800">501 km & seterusnya:</span>
+                        <span className="text-sm text-blue-600">@ RM {governmentRateCalc.breakdown.beyond500km.rate}</span>
+                      </div>
+                      <div className="text-2xl font-bold text-blue-900">
+                        {governmentRateCalc.breakdown.beyond500km.distance.toFixed(1)} km
+                      </div>
+                      <div className="text-blue-700 font-medium">
+                        = RM {governmentRateCalc.breakdown.beyond500km.cost.toFixed(2)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Total Summary */}
+                <div className="mt-4 p-4 bg-blue-100 rounded-lg border border-blue-300">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-blue-900">JUMLAH KESELURUHAN:</span>
+                    <span className="text-xl font-bold text-blue-900">
+                      RM {governmentRateCalc.totalCost.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="text-sm text-blue-700 mt-1">
+                    Kadar purata: RM {(governmentRateCalc.totalCost / governmentRateCalc.totalDistance).toFixed(3)}/km
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Additional Info */}
             <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg border border-slate-200 mt-4">
               <div className="flex items-center justify-center gap-4 text-sm text-slate-600 flex-wrap">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-amber-400 rounded-full"></div>
-                  <span>Kadar: RM {kadar}/km</span>
+                  <span>Kadar: {useGovernmentRate ? 
+                    `Kerajaan (${vehicleType === 'kereta' ? 'Kereta' : 'Motorsikal'})` : 
+                    `Manual RM ${kadar}/km`
+                  }</span>
                 </div>
                 <div className="w-px h-4 bg-slate-300"></div>
                 <div className="flex items-center gap-2">
